@@ -1,0 +1,41 @@
+﻿<header>
+    <header>
+        <section class="container">
+
+            <div class="left">
+                <a href=""><img src="/images/Silicon Logotype - Light Mode.svg" alt=""> </a>
+                <NavLink href="" Match="NavLinkMatch.All">Overview</NavLink>
+                <NavLink href="/#features">Features</NavLink>
+               
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink href="/courses">Courses</NavLink>
+                        <NavLink href="/account/details">My Acount</NavLink>
+                    </Authorized>
+                </AuthorizeView>
+
+                <a href="/contacts">Contact</a>
+            </div>
+
+            <div class="right">
+                <span class="light">Light</span>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+                <span class="dark">Dark</span>
+                <AuthorizeView>
+                    <Authorized>
+                        <a asp-controller="Auth" asp-action="SignOut" class="btn-gray"><i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>Sign Out</a>
+                        <a class="profileImage" asp-action="Details" asp-controller="Account"><img src="/uploads/profiles/avarar" alt="profile image" /></a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/signin" class="btn-gray"><i class="fa-sharp fa-solid fa-right-to-bracket"></i>Sign in</a>
+                        <a href="/signup" class="btn-theme"><i class="fa-light fa-user"></i>Sign up</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+
+        </section>
+    </header>
+</header>

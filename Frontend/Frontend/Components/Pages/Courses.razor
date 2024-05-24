@@ -1,0 +1,75 @@
+﻿@page "/courses"
+@using Microsoft.AspNetCore.Authorization
+@attribute [StreamRendering]
+@attribute [Authorize]
+
+
+<PageTitle>Courses</PageTitle>
+
+
+<section class="container courses">
+
+    <a asp-action="CourseRegisterForm" asp-controller="Courses"> Create new course</a>
+
+    <br />
+    <hr />
+    <br />
+
+        <div class="courseParent">
+        @if (courses == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                @foreach (var course in courses)
+                {
+                    <div class="courseChiled">
+                        <img src="/CourseImage/@course.Image" alt="CourseImage" />
+                        <h2>@course.Title</h2>
+                        <div>@course.Author</div>
+                        <div class="price">
+                            <div class="Price">$@course.Price</div>
+                            @if (course.DiscountPrice != null)
+                            {
+                                <div class="DiscountPrice">$@course.DiscountPrice</div>
+
+                            }
+                        </div>
+                        <div class="like">
+                            <div><i class="fa-thin fa-clock"></i>  @course.Hours hours</div>
+                            <div><i class="fa-light fa-thumbs-up"></i>  @course.LikesInProcent</div>
+                            <div>( @course.LikesInNumbers K )</div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+</section>
+
+@code {
+    private CourseModel[]? courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            courses = await Http.GetFromJsonAsync<CourseModel[]>("courseprovider-win23jsbackend-aladdin.azurewebsites.net/api/courses");
+        }
+        catch (Exception ex) { }
+    }
+
+    private class CourseModel
+    {
+        public int Id { get; set; }
+        public bool IsBestseller { get; set; }
+        public string? Image { get; set; }
+        public string Title { get; set; } = null!;
+        public string Author { get; set; } = null!;
+        public string Price { get; set; } = null!;
+        public string? DiscountPrice { get; set; }
+        public string Hours { get; set; } = null!;
+        public string LikesInProcent { get; set; } = null!;
+        public string LikesInNumbers { get; set; } = null!;
+    }
+}

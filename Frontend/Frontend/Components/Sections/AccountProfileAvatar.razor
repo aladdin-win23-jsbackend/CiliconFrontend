@@ -1,0 +1,37 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <div class="profile-info">
+            @context.User.Identity?.Name
+            <img src="~/uploads/@user.ProfileImage" alt="profile-image" />
+           
+            <EditForm enctype="multipart/form-data" method="post" Model="" FormName="ProfileUpload" OnInvalidSubmit="HandelProfileUpload" >
+                <input id="fileUploader" type="file" name="file" hidden />
+                <label for="fileUploader" class="btn btn-circle btn-circle-sm"><i class="fa-regular fa-refresh"></i></label>
+            </EditForm>
+            <h5>@($"{Model.ProfileInfo.FirstName} {Model.ProfileInfo.LastName}") </h5>
+            <p>@Model.ProfileInfo.Email</p>
+        </div>
+
+        <nav>
+            <a class="btn-theme" asp-controller="Account" asp-action="Details"><i class="fa-regular fa-gear"></i>Account Details</a>
+            <a class="btn-gray" asp-controller="Auth" asp-action="SignOut"><i class="fa-solid fa-right-from-bracket"></i>Sign out</a>
+        </nav>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private ApplicationUser user = default!;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializeAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+    }
+
+    public async Task HandelProfileUpload()
+    {
+        
+    }
+}
