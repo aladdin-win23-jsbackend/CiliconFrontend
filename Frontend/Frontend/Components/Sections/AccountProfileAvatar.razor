@@ -1,37 +1,77 @@
-﻿<AuthorizeView>
-    <Authorized>
-        <div class="profile-info">
-            @context.User.Identity?.Name
-            <img src="~/uploads/@user.ProfileImage" alt="profile-image" />
-           
-            <EditForm enctype="multipart/form-data" method="post" Model="" FormName="ProfileUpload" OnInvalidSubmit="HandelProfileUpload" >
-                <input id="fileUploader" type="file" name="file" hidden />
-                <label for="fileUploader" class="btn btn-circle btn-circle-sm"><i class="fa-regular fa-refresh"></i></label>
-            </EditForm>
-            <h5>@($"{Model.ProfileInfo.FirstName} {Model.ProfileInfo.LastName}") </h5>
-            <p>@Model.ProfileInfo.Email</p>
-        </div>
+﻿@attribute [StreamRendering]
 
-        <nav>
-            <a class="btn-theme" asp-controller="Account" asp-action="Details"><i class="fa-regular fa-gear"></i>Account Details</a>
-            <a class="btn-gray" asp-controller="Auth" asp-action="SignOut"><i class="fa-solid fa-right-from-bracket"></i>Sign out</a>
-        </nav>
-    </Authorized>
-</AuthorizeView>
+@using System.Net.Http.Headers
+@if (user == null)
+{
+    <p>Loding...</p>
+}
+else
+{
+    <section class="account-profile">
+        <div class="profile">
+            <div class="profile-image">
+                <img src="/images/@user.ProfileImage" alt="@user.FirstName @user.LastName" />
+
+                <EditForm Model="@uploadModel" OnInvalidSubmit="HandleProfileUpload">
+                    <InputFile id="fileUploader" OnChange="HandleFileSelected" hidden />
+                    <label for="fileUploader" class="btn btn-circle btn-circle-sm"><i class="fa-regular fa-refresh"></i></label>
+                </EditForm>
+            </div>
+        </div>
+        <div class="profile-info">
+            <h3 class="displayName">@user.FirstName @user.LastName</h3>
+            <p>@user.Email</p>
+        </div>
+    </section>
+    
+}
+
 
 @code {
     private ApplicationUser user = default!;
+    private MultipartFormDataContent uploadModel = new MultipartFormDataContent();
+    private IBrowserFile? selectedFile;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    protected override async Task OnInitializeAsync()
+    protected async Task OnInitializeAsync()
+    {
+        await LoadUserDataAsync();
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    private async Task LoadUserDataAsync()
     {
         user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
     }
 
-    public async Task HandelProfileUpload()
+    public async Task HandleProfileUpload()
     {
-        
+        if (selectedFile != null)
+        {
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 15)); //Max 15MB
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(selectedFile.ContentType);
+            content.Add(fileContent, "file", selectedFile.Name);
+
+            try
+            {
+                var response = await Http.PutAsync("http://fileprovider-win23jsbackend-aladdin.azurewebsites.net/api/upload", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    await LoadUserDataAsync();
+                    StateHasChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
     }
 }
