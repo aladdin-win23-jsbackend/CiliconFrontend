@@ -16,7 +16,6 @@ public class ApplicationUser : IdentityUser
     public AddressEntity? Address { get; set; }
 }
 
-
 public class AddressEntity
 {
     [Key]
